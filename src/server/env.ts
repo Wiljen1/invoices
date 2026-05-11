@@ -39,7 +39,7 @@ function defaultRestBaseUrl(accountId: string) {
 }
 
 export function getServerConfig(): ServerConfig {
-  const accountId = env("NETSUITE_ACCOUNT_ID");
+  const accountId = env("NETSUITE_ACCOUNT_ID").toUpperCase();
   const authMode = env("NETSUITE_AUTH_MODE", "oauth2").trim().toLowerCase() === "tba" ? "tba" : "oauth2";
 
   return {
@@ -47,7 +47,7 @@ export function getServerConfig(): ServerConfig {
     clientOrigin: env("CLIENT_ORIGIN", "http://localhost:5173"),
     netsuite: {
       accountId,
-      realm: env("NETSUITE_REALM", accountId),
+      realm: env("NETSUITE_REALM", accountId).toUpperCase(),
       restBaseUrl: env("NETSUITE_REST_BASE_URL", defaultRestBaseUrl(accountId)),
       authMode,
       oauth2: {
