@@ -30,7 +30,7 @@ export interface ServerConfig {
 }
 
 function env(name: string, fallback = "") {
-  return process.env[name] ?? fallback;
+  return (process.env[name] ?? fallback).trim();
 }
 
 function defaultRestBaseUrl(accountId: string) {
