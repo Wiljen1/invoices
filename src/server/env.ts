@@ -40,7 +40,7 @@ function defaultRestBaseUrl(accountId: string) {
 
 export function getServerConfig(): ServerConfig {
   const accountId = env("NETSUITE_ACCOUNT_ID");
-  const authMode = env("NETSUITE_AUTH_MODE", "tba").toLowerCase() === "oauth2" ? "oauth2" : "tba";
+  const authMode = env("NETSUITE_AUTH_MODE", "oauth2").trim().toLowerCase() === "tba" ? "tba" : "oauth2";
 
   return {
     port: Number(env("PORT", "3001")),
