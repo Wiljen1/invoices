@@ -1,4 +1,5 @@
 import cors from "cors";
+import crypto from "node:crypto";
 import express from "express";
 import { z } from "zod";
 import type { TransactionSearchFilters } from "../types";
@@ -58,6 +59,33 @@ app.get("/", (request, response) => {
 
 app.get("/api/health", (_request, response) => {
   response.json({ ok: true, dataSource: "netsuite" });
+});
+
+app.get("/api/debug/config", (_request, response) => {
+  response.json({
+    port: config.port,
+    clientOrigin: config.clientOrigin,
+    netsuite: {
+      accountId: visibleValue(config.netsuite.accountId),
+      realm: visibleValue(config.netsuite.realm),
+      restBaseUrl: visibleValue(config.netsuite.restBaseUrl),
+      authMode: config.netsuite.authMode,
+      tba: {
+        consumerKey: fingerprintValue(config.netsuite.tba.consumerKey),
+        consumerSecret: fingerprintValue(config.netsuite.tba.consumerSecret),
+        tokenId: fingerprintValue(config.netsuite.tba.tokenId),
+        tokenSecret: fingerprintValue(config.netsuite.tba.tokenSecret)
+      },
+      oauth2: {
+        accessToken: fingerprintValue(config.netsuite.oauth2.accessToken),
+        clientId: fingerprintValue(config.netsuite.oauth2.clientId),
+        clientSecret: fingerprintValue(config.netsuite.oauth2.clientSecret),
+        tokenUrl: visibleValue(config.netsuite.oauth2.tokenUrl),
+        scope: visibleValue(config.netsuite.oauth2.scope),
+        grantType: visibleValue(config.netsuite.oauth2.grantType)
+      }
+    }
+  });
 });
 
 app.get("/api/customers", async (_request, response) => {
@@ -133,4 +161,20 @@ function sendApiError(response: express.Response, error: unknown, fallbackMessag
 
   const message = error instanceof Error ? error.message : fallbackMessage;
   response.status(500).json({ message });
+}
+
+function visibleValue(value?: string) {
+  return {
+    set: Boolean(value),
+    value: value || "",
+    length: value?.length ?? 0
+  };
+}
+
+function fingerprintValue(value?: string) {
+  return {
+    set: Boolean(value),
+    length: value?.length ?? 0,
+    sha256: value ? crypto.createHash("sha256").update(value).digest("hex").slice(0, 12) : ""
+  };
 }
